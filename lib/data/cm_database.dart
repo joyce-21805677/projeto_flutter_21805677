@@ -207,9 +207,9 @@ class CmDatabase extends IParksRepository{
       throw Exception('No database was found');
     }
 
-    int currentCount = await countReports();
+    int currentCount = await countGiraReports();
     report.reportId = currentCount.toString();
-    await _database!.insert('report', report.toDb());
+    await _database!.insert('gira_report', report.toDb());
 
   }
 
@@ -229,7 +229,7 @@ class CmDatabase extends IParksRepository{
     }
 
     List<Map<String, dynamic>> result = await _database!.rawQuery(
-      'SELECT * FROM report WHERE park_id = ?',
+      'SELECT * FROM gira_report WHERE gira_id = ?',
       [giraId],
     );
     return result

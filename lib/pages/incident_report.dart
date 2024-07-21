@@ -15,7 +15,6 @@ class IncidentReport extends StatefulWidget {
 }
 
 class _IncidentReportState extends State<IncidentReport> {
-
   ParkListing? selected;
   GiraListing? selectedGira;
 
@@ -38,7 +37,6 @@ class _IncidentReportState extends State<IncidentReport> {
 
   @override
   Widget build(BuildContext context) {
-
     final repository = context.read<ParksRepository>();
     final database = context.read<CmDatabase>();
 
@@ -46,17 +44,18 @@ class _IncidentReportState extends State<IncidentReport> {
       length: 2,
       child: Scaffold(
         appBar: AppBar(
-          title: Text("Registar Incidente",
+          title: Text(
+            "Registar Incidente",
             style: TextStyle(
               fontSize: 20,
             ),
           ),
           backgroundColor: Colors.blue,
           bottom: TabBar(
-            labelColor: Colors.white, // Set the color for selected tab text
-            unselectedLabelColor: Colors.white54, // Set the color for unselected tab text
-            labelStyle: TextStyle(color: Colors.white), // Ensure selected text is white
-            unselectedLabelStyle: TextStyle(color: Colors.white54), // Ensure unselected text is slightly less white
+            labelColor: Colors.white,
+            unselectedLabelColor: Colors.white54,
+            labelStyle: TextStyle(color: Colors.white),
+            unselectedLabelStyle: TextStyle(color: Colors.white54),
             tabs: [
               Tab(text: 'Parque'),
               Tab(text: 'Gira'),
@@ -65,7 +64,7 @@ class _IncidentReportState extends State<IncidentReport> {
         ),
         body: TabBarView(
           children: [
-            FutureBuilder(
+            FutureBuilder<List<ParkListing>>(
               future: repository.parkListing(),
               builder: (_, snapshot) {
                 if (snapshot.connectionState != ConnectionState.done) {
@@ -73,19 +72,27 @@ class _IncidentReportState extends State<IncidentReport> {
                 } else if (snapshot.hasError) {
                   return Center(child: Text("Error: ${snapshot.error}"));
                 } else {
-                  return buildParkForm(database, snapshot.data ?? []);
+                  final parks = snapshot.data ?? [];
+                  if (selected != null && !parks.contains(selected)) {
+                    selected = null;
+                  }
+                  return buildParkForm(database, parks);
                 }
               },
             ),
-            FutureBuilder(
-              future: repository.giraListing(), // Assuming you have a similar method for Gira listings
+            FutureBuilder<List<GiraListing>>(
+              future: repository.giraListing(),
               builder: (_, snapshot) {
                 if (snapshot.connectionState != ConnectionState.done) {
                   return Center(child: CircularProgressIndicator());
                 } else if (snapshot.hasError) {
                   return Center(child: Text("Error: ${snapshot.error}"));
                 } else {
-                  return buildGiraForm(database, snapshot.data ?? []);
+                  final giras = snapshot.data ?? [];
+                  if (selectedGira != null && !giras.contains(selectedGira)) {
+                    selectedGira = null;
+                  }
+                  return buildGiraForm(database, giras);
                 }
               },
             ),
@@ -126,7 +133,7 @@ class _IncidentReportState extends State<IncidentReport> {
       onChanged: (ParkListing? value) {
         setState(() {
           selected = value;
-          parkId = value?.parkId ?? '';
+          parkId = value?.parkId ?? 'null';
         });
       },
       items: parks.map((ParkListing item) {
@@ -154,7 +161,7 @@ class _IncidentReportState extends State<IncidentReport> {
       onChanged: (String? value) {
         setState(() {
           selectedSeverityLevel = value;
-          severity = value ?? '';
+          severity = value ?? 'null';
         });
       },
     );
@@ -188,7 +195,7 @@ class _IncidentReportState extends State<IncidentReport> {
             SizedBox(height: 10),
             buildGiraObsForm(),
             SizedBox(height: 10),
-            buildSubmitButton(database),
+            buildGiraSubmitButton(database),
           ],
         ),
       ),
@@ -205,13 +212,16 @@ class _IncidentReportState extends State<IncidentReport> {
       onChanged: (GiraListing? value) {
         setState(() {
           selectedGira = value;
-          giraId = value?.giraId ?? '';
+          giraId = value?.giraId ?? 'null';
         });
       },
       items: giras.map((GiraListing item) {
         return DropdownMenuItem(
           value: item,
-          child: Text(item.address),
+          child: ConstrainedBox(
+            constraints: BoxConstraints(maxWidth: 312),
+            child: Text(item.address, overflow: TextOverflow.ellipsis, maxLines: 1,),
+          )
         );
       }).toList(),
     );
@@ -233,7 +243,7 @@ class _IncidentReportState extends State<IncidentReport> {
       onChanged: (String? value) {
         setState(() {
           selectedType = value;
-          type = value ?? '';
+          type = value ?? 'null';
         });
       },
     );
@@ -255,20 +265,14 @@ class _IncidentReportState extends State<IncidentReport> {
 
   Widget buildSubmitButton(CmDatabase database) {
     return ElevatedButton(
-      onPressed: ()  {
+      onPressed: () {
         obs = obsController.text.toString();
-        print(parkId);
-        print(severity);
-        print(obsController.text);
 
-        if(severity == 'null' || parkId == 'null' || obs == 'null'){
-
+        if (severity == 'null' || parkId == 'null' || obs == 'null') {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Todos os campos são obrigatórios'),
           ));
-
-        } else{
-
+        } else {
           database.insertReport(Report(
             reportId: '',
             parkId: parkId,
@@ -292,25 +296,19 @@ class _IncidentReportState extends State<IncidentReport> {
 
   Widget buildGiraSubmitButton(CmDatabase database) {
     return ElevatedButton(
-      onPressed: ()  {
-
-        if(type == 'null' || giraId == 'null' || obs == 'null'){
-
+      onPressed: () {
+        if (type == 'null' || giraId == 'null' || obs == 'null') {
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Todos os campos são obrigatórios'),
           ));
-
         } else if (obs.length < 20) {
-
           ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Minimo 20 caracteres nas observações'),
           ));
-
         } else {
-
           int typeInt = 0;
 
-          switch(type){
+          switch (type) {
             case 'Bicicleta vandalizada':
               typeInt = 1;
               break;
@@ -322,19 +320,19 @@ class _IncidentReportState extends State<IncidentReport> {
               break;
           }
 
-            database.insertGiraReport(GiraReport(
-              reportId: '',
-              giraId: giraId,
-              type: typeInt,
-              obs: obs,
-              dateInfo: DateTime.now().toString(),
-            ));
+          database.insertGiraReport(GiraReport(
+            reportId: '',
+            giraId: giraId,
+            type: typeInt,
+            obs: obs,
+            dateInfo: DateTime.now().toString(),
+          ));
 
-            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
-              content: Text('Incidente reportado!'),
-            ));
-          }
-        },
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Incidente reportado!'),
+          ));
+        }
+      },
       style: ElevatedButton.styleFrom(
         padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
         textStyle: TextStyle(fontSize: 18),
@@ -342,5 +340,4 @@ class _IncidentReportState extends State<IncidentReport> {
       child: Text('Submeter'),
     );
   }
-
 }

@@ -108,20 +108,19 @@ class Emelservice  extends IParksRepository{
 
   @override
   Future<List<Gira>> getGiras() async {
-
     final request = await _client.get(
       url: 'https://emel.city-platform.com/opendata/gira/station/list',
       headers: {'api_key': '93600bb4e7fee17750ae478c22182dda'},
     );
 
-    if(request.statusCode == 200){
+    if (request.statusCode == 200) {
       final responseJson = jsonDecode(request.body);
 
-      List girasJson = responseJson['features'];
+      List<dynamic> girasJSON = responseJson['features'];
 
-      List<Gira> giras = girasJson.map((gira) => Gira.fromJSON(gira)).toList();
+      Set<Gira> uniqueGiras = girasJSON.map((giraJson) => Gira.fromJSON(giraJson)).toSet();
 
-      return giras;
+      return uniqueGiras.toList();
     } else {
       throw Exception('Status Code: ${request.statusCode}');
     }
@@ -140,9 +139,9 @@ class Emelservice  extends IParksRepository{
 
       List girasJson = responseJson['features'];
 
-      List<Gira> giras = girasJson.map((gira) => Gira.fromJSON(gira)).toList();
+      Set<Gira> uniqueGiras = girasJson.map((giraJson) => Gira.fromJSON(giraJson)).toSet();
 
-      for(Gira gira in giras){
+      for(Gira gira in uniqueGiras){
         if(gira.giraId == giraId){
           return gira;
         }
@@ -168,13 +167,13 @@ class Emelservice  extends IParksRepository{
 
       List<GiraMarker> markers = girasJSON.map((markerJson) => GiraMarker.fromJSON(markerJson)).toList();
 
-      return markers;
+      Set<GiraMarker> uniqueGiras = markers.toSet();
 
+      return uniqueGiras.toList();
     }else{
       throw Exception('Status error code: ${response.statusCode}');
     }
   }
-
 
   @override
   Future<List<GiraListing>> giraListing() async {
@@ -186,13 +185,14 @@ class Emelservice  extends IParksRepository{
 
     if (response.statusCode == 200){
       final responseJSON = jsonDecode(response.body);
+
       List girasJSON = responseJSON['features'];
 
-      List<GiraListing> parks =
-      girasJSON.map((item) => GiraListing.fromJSON(item)).toList();
+      List<GiraListing> giras = girasJSON.map((item) => GiraListing.fromJSON(item)).toList();
 
-      return parks;
+      Set<GiraListing> uniqueGiras = giras.toSet();
 
+      return uniqueGiras.toList();
     }else{
       throw Exception('status code: ${response.statusCode}');
     }

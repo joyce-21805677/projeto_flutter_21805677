@@ -115,7 +115,7 @@ class _GiraDetailState extends State<GiraDetail> {
         if (snapshot.connectionState != ConnectionState.done) {
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text('Erro: ${snapshot.error}'));
+          return Center(child: Text('Error: ${snapshot.error}'));
         } else {
           return buildReportsList(snapshot.data ?? []);
         }
