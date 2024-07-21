@@ -117,7 +117,7 @@ class Emelservice  extends IParksRepository{
     if(request.statusCode == 200){
       final responseJson = jsonDecode(request.body);
 
-      List girasJson = responseJson;
+      List girasJson = responseJson['features'];
 
       List<Gira> giras = girasJson.map((gira) => Gira.fromJSON(gira)).toList();
 
@@ -138,7 +138,7 @@ class Emelservice  extends IParksRepository{
     if(request.statusCode == 200){
       final responseJson = jsonDecode(request.body);
 
-      List girasJson = responseJson;
+      List girasJson = responseJson['features'];
 
       List<Gira> giras = girasJson.map((gira) => Gira.fromJSON(gira)).toList();
 
@@ -153,17 +153,18 @@ class Emelservice  extends IParksRepository{
   }
 
   @override
-  Future<List<GiraMarker>> getGiraMarker(String giraId) async {
+  Future<List<GiraMarker>> getGiraMarker() async {
 
     final response = await _client.get(
-      url: 'https://emel.city-platform.com/opendata/gira/station/$giraId',
+      url: 'https://emel.city-platform.com/opendata/gira/station/list',
       headers: {'api_key': '93600bb4e7fee17750ae478c22182dda'},
     );
 
     if (response.statusCode == 200){
 
       final responseJSON = jsonDecode(response.body);
-      List girasJSON = responseJSON;
+
+      List girasJSON = responseJSON['features'];
 
       List<GiraMarker> markers = girasJSON.map((markerJson) => GiraMarker.fromJSON(markerJson)).toList();
 
@@ -185,7 +186,7 @@ class Emelservice  extends IParksRepository{
 
     if (response.statusCode == 200){
       final responseJSON = jsonDecode(response.body);
-      List girasJSON = responseJSON;
+      List girasJSON = responseJSON['features'];
 
       List<GiraListing> parks =
       girasJSON.map((item) => GiraListing.fromJSON(item)).toList();
@@ -216,7 +217,7 @@ class Emelservice  extends IParksRepository{
   }
 
   @override
-  Future<void> deleteGira() {
+  Future<void> deleteGiras() {
     // TODO: implement deleteGira
     throw UnimplementedError();
   }

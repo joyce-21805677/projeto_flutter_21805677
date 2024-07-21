@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:projeto_flutter_21805677/Models/gira_listing.dart';
+import 'package:projeto_flutter_21805677/Models/gira_report.dart';
 import 'package:projeto_flutter_21805677/Models/park_listing.dart';
 import 'package:projeto_flutter_21805677/Models/report.dart';
 import 'package:projeto_flutter_21805677/data/cm_database.dart';
@@ -15,15 +17,24 @@ class IncidentReport extends StatefulWidget {
 class _IncidentReportState extends State<IncidentReport> {
 
   ParkListing? selected;
-  var severityLevels = ['1', '2', '3', '4', '5'];
-  String? selectedSeverityLevel;
-  TextEditingController obsController = TextEditingController();
-  final formKey = GlobalKey<FormState>();
+  GiraListing? selectedGira;
 
   String parkId = 'null';
+  String giraId = 'null';
+
+  var severityLevels = ['1', '2', '3', '4', '5'];
+  String? selectedSeverityLevel;
   String severity = 'null';
+
+  String? selectedType;
+  var types = ['Bicicleta vandalizada', 'Doca não libertou bicicleta', 'Outra situação'];
+  String type = 'null';
+
+  TextEditingController obsController = TextEditingController();
   String obs = 'null';
 
+  final formKey = GlobalKey<FormState>();
+  final giraFormKey = GlobalKey<FormState>();
 
   @override
   Widget build(BuildContext context) {
@@ -31,48 +42,76 @@ class _IncidentReportState extends State<IncidentReport> {
     final repository = context.read<ParksRepository>();
     final database = context.read<CmDatabase>();
 
-
-    return Scaffold(
-      appBar: AppBar(
-        title: Text( "Registar Incidente",
-          style: TextStyle(
-            fontSize: 20,
+    return DefaultTabController(
+      length: 2,
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text("Registar Incidente",
+            style: TextStyle(
+              fontSize: 20,
+            ),
+          ),
+          backgroundColor: Colors.blue,
+          bottom: TabBar(
+            labelColor: Colors.white, // Set the color for selected tab text
+            unselectedLabelColor: Colors.white54, // Set the color for unselected tab text
+            labelStyle: TextStyle(color: Colors.white), // Ensure selected text is white
+            unselectedLabelStyle: TextStyle(color: Colors.white54), // Ensure unselected text is slightly less white
+            tabs: [
+              Tab(text: 'Parque'),
+              Tab(text: 'Gira'),
+            ],
           ),
         ),
-        backgroundColor: Colors.blue,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16),
-        child: FutureBuilder(
-          future: repository.parkListing(),
-          builder: (_, snapshot) {
-            if (snapshot.connectionState != ConnectionState.done) {
-              return Center(child: CircularProgressIndicator());
-            } else if (snapshot.hasError) {
-              return Center(child: Text("Error: ${snapshot.error}"));
-            } else {
-              return buildForm(database, snapshot.data ?? []);
-            }
-          },
+        body: TabBarView(
+          children: [
+            FutureBuilder(
+              future: repository.parkListing(),
+              builder: (_, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                } else {
+                  return buildParkForm(database, snapshot.data ?? []);
+                }
+              },
+            ),
+            FutureBuilder(
+              future: repository.giraListing(), // Assuming you have a similar method for Gira listings
+              builder: (_, snapshot) {
+                if (snapshot.connectionState != ConnectionState.done) {
+                  return Center(child: CircularProgressIndicator());
+                } else if (snapshot.hasError) {
+                  return Center(child: Text("Error: ${snapshot.error}"));
+                } else {
+                  return buildGiraForm(database, snapshot.data ?? []);
+                }
+              },
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget buildForm(CmDatabase database, List<ParkListing> parks) {
-    return Form(
-      key: formKey,
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          buildParkList(parks),
-          SizedBox(height: 10),
-          buildSeverityDropdown(),
-          SizedBox(height: 10),
-          buildObsForm(),
-          SizedBox(height: 10),
-          buildSubmitButton(database),
-        ],
+  Widget buildParkForm(CmDatabase database, List<ParkListing> parks) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Form(
+        key: formKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            buildParkList(parks),
+            SizedBox(height: 10),
+            buildSeverityDropdown(),
+            SizedBox(height: 10),
+            buildObsForm(),
+            SizedBox(height: 10),
+            buildSubmitButton(database),
+          ],
+        ),
       ),
     );
   }
@@ -135,6 +174,85 @@ class _IncidentReportState extends State<IncidentReport> {
     );
   }
 
+  Widget buildGiraForm(CmDatabase database, List<GiraListing> giras) {
+    return Padding(
+      padding: const EdgeInsets.all(16),
+      child: Form(
+        key: giraFormKey,
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            buildGiraList(giras),
+            SizedBox(height: 10),
+            buildTypeDropdown(),
+            SizedBox(height: 10),
+            buildGiraObsForm(),
+            SizedBox(height: 10),
+            buildSubmitButton(database),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget buildGiraList(List<GiraListing> giras) {
+    return DropdownButtonFormField<GiraListing>(
+      value: selectedGira,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        labelText: 'Estação do incidente...',
+      ),
+      onChanged: (GiraListing? value) {
+        setState(() {
+          selectedGira = value;
+          giraId = value?.giraId ?? '';
+        });
+      },
+      items: giras.map((GiraListing item) {
+        return DropdownMenuItem(
+          value: item,
+          child: Text(item.address),
+        );
+      }).toList(),
+    );
+  }
+
+  Widget buildTypeDropdown() {
+    return DropdownButtonFormField<String>(
+      value: selectedType,
+      decoration: InputDecoration(
+        border: OutlineInputBorder(),
+        labelText: 'Tipo de incidente...',
+      ),
+      items: types.map((String value) {
+        return DropdownMenuItem<String>(
+          value: value,
+          child: Text(value),
+        );
+      }).toList(),
+      onChanged: (String? value) {
+        setState(() {
+          selectedType = value;
+          type = value ?? '';
+        });
+      },
+    );
+  }
+
+  Widget buildGiraObsForm() {
+    return TextFormField(
+      controller: obsController,
+      maxLines: 3,
+      decoration: InputDecoration(
+        hintText: 'Observações',
+        border: OutlineInputBorder(),
+      ),
+      onChanged: (value) {
+        obs = value;
+      },
+    );
+  }
+
   Widget buildSubmitButton(CmDatabase database) {
     return ElevatedButton(
       onPressed: ()  {
@@ -145,17 +263,23 @@ class _IncidentReportState extends State<IncidentReport> {
 
         if(severity == 'null' || parkId == 'null' || obs == 'null'){
 
-          ScaffoldMessenger.of(context).showSnackBar((SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Todos os campos são obrigatórios'),
-          )));
+          ));
 
         } else{
 
-          database.insertReport(Report(reportId: '', parkId: parkId, severity: int.parse(severity), dateInfo: DateTime.now().toString(), obs: obs));
+          database.insertReport(Report(
+            reportId: '',
+            parkId: parkId,
+            severity: int.parse(severity),
+            dateInfo: DateTime.now().toString(),
+            obs: obs,
+          ));
 
-          ScaffoldMessenger.of(context).showSnackBar((SnackBar(
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text('Incidente reportado!'),
-          )));
+          ));
         }
       },
       style: ElevatedButton.styleFrom(
@@ -165,4 +289,58 @@ class _IncidentReportState extends State<IncidentReport> {
       child: Text('Submeter'),
     );
   }
+
+  Widget buildGiraSubmitButton(CmDatabase database) {
+    return ElevatedButton(
+      onPressed: ()  {
+
+        if(type == 'null' || giraId == 'null' || obs == 'null'){
+
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Todos os campos são obrigatórios'),
+          ));
+
+        } else if (obs.length < 20) {
+
+          ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+            content: Text('Minimo 20 caracteres nas observações'),
+          ));
+
+        } else {
+
+          int typeInt = 0;
+
+          switch(type){
+            case 'Bicicleta vandalizada':
+              typeInt = 1;
+              break;
+            case 'Doca não libertou bicicleta':
+              typeInt = 2;
+              break;
+            case 'Outra situação':
+              typeInt = 3;
+              break;
+          }
+
+            database.insertGiraReport(GiraReport(
+              reportId: '',
+              giraId: giraId,
+              type: typeInt,
+              obs: obs,
+              dateInfo: DateTime.now().toString(),
+            ));
+
+            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+              content: Text('Incidente reportado!'),
+            ));
+          }
+        },
+      style: ElevatedButton.styleFrom(
+        padding: EdgeInsets.symmetric(horizontal: 24.0, vertical: 12.0),
+        textStyle: TextStyle(fontSize: 18),
+      ),
+      child: Text('Submeter'),
+    );
+  }
+
 }

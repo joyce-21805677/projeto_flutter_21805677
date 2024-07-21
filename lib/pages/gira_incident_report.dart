@@ -2,8 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:projeto_flutter_21805677/Models/gira_listing.dart';
 import 'package:projeto_flutter_21805677/Models/gira_report.dart';
-import 'package:projeto_flutter_21805677/Models/park_listing.dart';
-import 'package:projeto_flutter_21805677/Models/report.dart';
 import 'package:projeto_flutter_21805677/data/cm_database.dart';
 import 'package:projeto_flutter_21805677/repository/parks_repository.dart';
 import 'package:provider/provider.dart';
@@ -178,7 +176,12 @@ class _GiraIncidentReportState extends State<GiraIncidentReport> {
 
           }
 
-          database.insertGiraReport(GiraReport(reportId: '', giraId: giraId, obs: obs, type: type));
+          database.insertGiraReport(GiraReport(
+              reportId: '',
+              giraId: giraId,
+              obs: obs,
+              type: type,
+              dateInfo: DateTime.now().toString()));
 
           ScaffoldMessenger.of(context).showSnackBar((SnackBar(
             content: Text('Incidente gira reportado!'),

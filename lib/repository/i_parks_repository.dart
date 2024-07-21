@@ -21,9 +21,9 @@ abstract class IParksRepository{
   Future<Gira?> getGira(String giraId);
 
   Future<void> insertGira(Gira gira);
-  Future<void> deleteGira();
+  Future<void> deleteGiras();
 
-  Future<List<GiraMarker>> getGiraMarker(String giraId);
+  Future<List<GiraMarker>> getGiraMarker();
   Future<List<GiraListing>> giraListing();
 
 }

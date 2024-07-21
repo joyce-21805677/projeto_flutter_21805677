@@ -72,7 +72,6 @@ class ParksRepository extends IParksRepository{
     }
   }
 
-
   @override
   Future<List<Gira>> getGiras() async {
 
@@ -80,7 +79,7 @@ class ParksRepository extends IParksRepository{
 
     var giras = await remote.getGiras();
 
-    local.deleteParks().then(
+    local.deleteGiras().then(
     (_) {
       for (var gira in giras){
         local.insertGira(gira);
@@ -105,11 +104,13 @@ class ParksRepository extends IParksRepository{
     }
   }
 
-
   @override
-  Future<List<GiraMarker>> getGiraMarker(String giraId) async {
+  Future<List<GiraMarker>> getGiraMarker() async {
+
     if(await connectivityService.isOnline()){
-    return await remote.getGiraMarker(giraId);
+      var test = await remote.getGiraMarker();
+      
+      return await remote.getGiraMarker();
     } else{
     throw Exception("Operation failure");
     }
@@ -145,7 +146,7 @@ class ParksRepository extends IParksRepository{
   }
 
   @override
-  Future<void> deleteGira() {
+  Future<void> deleteGiras() {
     throw UnimplementedError();
   }
 }

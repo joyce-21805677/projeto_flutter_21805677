@@ -11,8 +11,8 @@ class GiraListing {
 
   factory GiraListing.fromJSON(Map<String, dynamic> json) {
     return GiraListing(
-        giraId: json['id_expl'],
-        address: json['desig_comercial']);
+        giraId: json['properties']['id_expl'],
+        address: json['properties']['desig_comercial']);
   }
 
   @override

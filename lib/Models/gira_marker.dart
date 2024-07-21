@@ -14,10 +14,11 @@ class GiraMarker {
 
   factory GiraMarker.fromJSON(Map<String, dynamic> json) {
     return GiraMarker(
-        giraId: json['id_expl'],
-        address: json['desig_comercial'],
-        lat: json['latitude'],
-        lon: json['longitude']);
+        giraId: json['properties']['id_expl'] ?? '',
+        address: json['properties']['desig_comercial'] ?? '',
+        lat: json['geometry']['coordinates'][0][0].toString(),
+        lon: json['geometry']['coordinates'][0][1].toString()
+    );
   }
 
 }

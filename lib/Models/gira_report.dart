@@ -4,9 +4,10 @@ class GiraReport {
   String? giraId;
   String obs;
   int type;
+  String? dateInfo;
 
 
-  GiraReport({required this.reportId,required this.giraId,required this.obs, required this.type});
+  GiraReport({required this.reportId,required this.giraId,required this.obs, required this.type, required this.dateInfo});
 
   factory GiraReport.fromDB(Map<String, dynamic> db){
     return GiraReport(
@@ -14,6 +15,7 @@ class GiraReport {
       giraId: db['gira_id'] ?? 'nullReport',
       obs: db['obs'] ?? 'nullReport',
       type: db['type'],
+      dateInfo: db['date_info'].toString(),
     );
   }
 
@@ -23,6 +25,7 @@ class GiraReport {
       'gira_id': giraId,
       'obs': obs,
       'type': type,
+      'date_info': dateInfo,
     };
   }
 

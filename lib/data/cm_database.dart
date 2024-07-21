@@ -1,5 +1,3 @@
-import 'dart:js_interop';
-
 import 'package:projeto_flutter_21805677/Models/gira_listing.dart';
 import 'package:projeto_flutter_21805677/Models/gira_marker.dart';
 import 'package:projeto_flutter_21805677/Models/gira_report.dart';
@@ -45,18 +43,21 @@ class CmDatabase extends IParksRepository{
         await db.execute(
           'CREATE TABLE gira('
               'gira_id TEXT PRIMARY KEY, '
-              'num_docks TEXT NOT NULL, '
-              'num_bikes TEXT NOT NULL, '
+              'num_docks INTEGER NOT NULL, '
+              'num_bikes INTEGER NOT NULL, '
               'address TEXT NOT NULL, '
               'last_update TEXT NOT NULL, '
+              'lat TEXT NOT NULL, '
+              'lon TEXT NOT NULL '
               ')',
         );
-        await db.execute( //TODO: Type pode ser numero que depois equivale a um tipo
+        await db.execute(
           'CREATE TABLE gira_report('
               'report_id TEXT PRIMARY KEY, '
               'gira_id TEXT NOT NULL, '
               'type INTEGER NULL, '
               'obs TEXT NOT NULL, '
+              'date_info TEXT NOT NULL, '
               ')',
         );
       },
@@ -192,7 +193,7 @@ class CmDatabase extends IParksRepository{
   }
 
   @override
-  Future<void> deleteGira() async {
+  Future<void> deleteGiras() async {
     if(_database == null) {
       throw Exception('No database initialized');
     }
@@ -254,7 +255,7 @@ class CmDatabase extends IParksRepository{
   }
 
   @override
-  Future<List<GiraMarker>> getGiraMarker(String giraId) {
+  Future<List<GiraMarker>> getGiraMarker() {
     // TODO: implement getGiraMarker
     throw UnimplementedError();
   }

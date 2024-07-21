@@ -55,7 +55,7 @@ class _GiraDetailState extends State<GiraDetail> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            buildFutureParkDetail(repository, database, context),
+            buildFutureGiraDetail(repository, database, context),
             SizedBox(height: 20),
             Text(
               'Lista de Incidentes Gira',
@@ -69,7 +69,7 @@ class _GiraDetailState extends State<GiraDetail> {
     );
   }
 
-  Widget buildPark(Gira gira) {
+  Widget buildGira(Gira gira) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -89,7 +89,7 @@ class _GiraDetailState extends State<GiraDetail> {
     );
   }
 
-  FutureBuilder<Gira?> buildFutureParkDetail(ParksRepository repository, CmDatabase database, context) {
+  FutureBuilder<Gira?> buildFutureGiraDetail(ParksRepository repository, CmDatabase database, context) {
     return FutureBuilder(
       future: widget.source == 'network' ? repository.getGira(widget.giraId) : database.getGira(widget.giraId),
       builder: (_, snapshot) {
@@ -97,9 +97,11 @@ class _GiraDetailState extends State<GiraDetail> {
           return Center(child: CircularProgressIndicator());
         } else {
           if (snapshot.hasError) {
+            print('SNAPSHOTDATA: ${snapshot.data}');
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
-            return buildPark(snapshot.data!);
+            Gira list = snapshot.data!; //TODO
+            return buildGira(list);
           }
         }
       },
