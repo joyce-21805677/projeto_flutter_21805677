@@ -57,7 +57,7 @@ class CmDatabase extends IParksRepository{
               'gira_id TEXT NOT NULL, '
               'type INTEGER NULL, '
               'obs TEXT NOT NULL, '
-              'date_info TEXT NOT NULL, '
+              'date_info TEXT NOT NULL '
               ')',
         );
       },
@@ -127,7 +127,7 @@ class CmDatabase extends IParksRepository{
 
   }
 
-  Future<int> countReports() async { //TODO: change counts
+  Future<int> countReports() async {
     if (_database == null) {
       throw Exception('No database initialized');
     }
@@ -137,7 +137,7 @@ class CmDatabase extends IParksRepository{
     return count;
   }
 
-  Future<List<Report>> getParkReports(String parkId) async {
+  Future<List<Report>> getParkReport(String parkId) async {
     if(_database == null){
       throw Exception('Forgot to initialize the database?');
     }
@@ -213,7 +213,7 @@ class CmDatabase extends IParksRepository{
 
   }
 
-  Future<int> countGiraReports() async { //TODO: change counts
+  Future<int> countGiraReports() async {
     if (_database == null) {
       throw Exception('No database initialized');
     }
@@ -223,7 +223,7 @@ class CmDatabase extends IParksRepository{
     return count;
   }
 
-  Future<List<GiraReport>> getGiraReports(String giraId) async {
+  Future<List<GiraReport>> getGiraReport(String giraId) async {
     if(_database == null){
       throw Exception('Forgot to initialize the database?');
     }
@@ -234,6 +234,32 @@ class CmDatabase extends IParksRepository{
     );
     return result
         .map((entry) => GiraReport.fromDB(entry))
+        .toList();
+  }
+
+  Future<List<GiraReport>> getGiraReports() async {
+    if(_database == null){
+      throw Exception('Forgot to initialize the database?');
+    }
+
+    List<Map<String, dynamic>> result = await _database!.rawQuery(
+      'SELECT * FROM gira_report');
+
+    return result
+        .map((entry) => GiraReport.fromDB(entry))
+        .toList();
+  }
+
+  Future<List<Report>> getParkReports() async {
+    if(_database == null){
+      throw Exception('Forgot to initialize the database?');
+    }
+
+    List<Map<String, dynamic>> result = await _database!.rawQuery(
+      'SELECT * FROM report');
+
+    return result
+        .map((entry) => Report.fromDB(entry))
         .toList();
   }
 
@@ -250,13 +276,11 @@ class CmDatabase extends IParksRepository{
 
   @override
   Future<List<GiraListing>> giraListing() {
-    // TODO: implement giraListing
     throw UnimplementedError();
   }
 
   @override
   Future<List<GiraMarker>> getGiraMarker() {
-    // TODO: implement getGiraMarker
     throw UnimplementedError();
   }
 }

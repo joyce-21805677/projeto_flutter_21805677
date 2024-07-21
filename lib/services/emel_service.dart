@@ -212,13 +212,11 @@ class Emelservice  extends IParksRepository{
 
   @override
   Future<void> insertGira(Gira gira) {
-    // TODO: implement insertGira
     throw UnimplementedError();
   }
 
   @override
   Future<void> deleteGiras() {
-    // TODO: implement deleteGira
     throw UnimplementedError();
   }
 

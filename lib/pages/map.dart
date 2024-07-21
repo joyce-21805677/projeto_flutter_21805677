@@ -26,7 +26,7 @@ class _MapState extends State<Map> {
   int shownMarkers = 0;
 
   final Location _locationController = Location();
-  static const LatLng _ulhtStartingPoint = LatLng(38.757855, -9.152953);
+  static const LatLng _startingPoint = LatLng(38.71313348698397, -9.138428674158465);
   LatLng? _currentPosition;
   StreamSubscription<LocationData>? _locationSubscription;
 
@@ -59,7 +59,7 @@ class _MapState extends State<Map> {
       )
           : GoogleMap(
         initialCameraPosition: CameraPosition(
-          target: _ulhtStartingPoint,
+          target: _startingPoint,
           zoom: 15,
         ),
         markers: _markers,

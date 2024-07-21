@@ -76,7 +76,7 @@ class _GiraDetailState extends State<GiraDetail> {
         Image(
           width: 150,
           image: NetworkImage(
-            'https://img.acp.pt/ResourcesUser/ImagesAC/Atualidade/2023/Mes11/Estacionamento-/Parque-Pontinha.jpg', //TODO: MUDAR IMAGEM
+            'https://www.gira-bicicletasdelisboa.pt/wp-content/uploads/2022/06/GIRA_01_©RodrigoCabrita-800x540.jpg', //TODO: MUDAR IMAGEM
           ),
         ),
         SizedBox(height: 10),
@@ -100,7 +100,7 @@ class _GiraDetailState extends State<GiraDetail> {
             print('SNAPSHOTDATA: ${snapshot.data}');
             return Center(child: Text('Error: ${snapshot.error}'));
           } else {
-            Gira list = snapshot.data!; //TODO
+            Gira list = snapshot.data!;
             return buildGira(list);
           }
         }
@@ -110,7 +110,7 @@ class _GiraDetailState extends State<GiraDetail> {
 
   FutureBuilder<List<GiraReport>> buildFutureReportList(CmDatabase database) {
     return FutureBuilder(
-      future: database.getGiraReports(widget.giraId),
+      future: database.getGiraReport(widget.giraId),
       builder: (_, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return Center(child: CircularProgressIndicator());
@@ -124,6 +124,7 @@ class _GiraDetailState extends State<GiraDetail> {
   }
 
   Widget buildReportsList(List<GiraReport> reports) {
+
     return ListView.separated(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -133,7 +134,7 @@ class _GiraDetailState extends State<GiraDetail> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text('Estação: ${reports[index].giraId}', style: TextStyle(fontSize: 18)),
-            Text('Tipo de problema ${reports[index].type}', style: TextStyle(fontSize: 12)), //TODO: convert type to text MAYBE
+            Text('Tipo de problema: ${parseType(reports[index].type)}', style: TextStyle(fontSize: 12)),
             Text('Observações:\n${reports[index].obs}', style: TextStyle(fontSize: 14)
             ),
           ],
@@ -145,5 +146,18 @@ class _GiraDetailState extends State<GiraDetail> {
     );
   }
 
+  String parseType (int type){
+
+    switch (type) {
+      case 1:
+        return 'Bicicleta vandalizada';
+      case 2:
+        return 'Doca não libertou bicicleta';
+      case 3:
+        return 'Outra situação';
+    }
+
+    return 'ERRO: Tipo não selecionado';
+  }
 
 }

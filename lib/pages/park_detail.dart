@@ -108,7 +108,7 @@ class _ParkDetailState extends State<ParkDetail> {
 
   FutureBuilder<List<Report>> buildFutureReportList(CmDatabase database) {
     return FutureBuilder(
-      future: database.getParkReports(widget.parkId),
+      future: database.getParkReport(widget.parkId),
       builder: (_, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return Center(child: CircularProgressIndicator());

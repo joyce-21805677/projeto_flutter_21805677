@@ -109,7 +109,7 @@ class ParksRepository extends IParksRepository{
 
     if(await connectivityService.isOnline()){
       var test = await remote.getGiraMarker();
-      
+
       return await remote.getGiraMarker();
     } else{
     throw Exception("Operation failure");
@@ -127,16 +127,16 @@ class ParksRepository extends IParksRepository{
   }
 
 
+
+
 //not to be implemented
   @override
   Future<void> deleteParks() {
-    // TODO: implement deleteParks
     throw UnimplementedError();
   }
 
   @override
   Future<void> insertPark(Park park) {
-    // TODO: implement insertPark
     throw UnimplementedError();
   }
 
