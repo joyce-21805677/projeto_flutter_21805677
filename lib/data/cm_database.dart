@@ -1,5 +1,11 @@
+import 'dart:js_interop';
+
+import 'package:projeto_flutter_21805677/Models/gira_listing.dart';
+import 'package:projeto_flutter_21805677/Models/gira_marker.dart';
+import 'package:projeto_flutter_21805677/Models/gira_report.dart';
 import 'package:projeto_flutter_21805677/Models/park_listing.dart';
 import 'package:projeto_flutter_21805677/Models/park.dart';
+import 'package:projeto_flutter_21805677/Models/gira.dart';
 import 'package:projeto_flutter_21805677/Models/park_marker.dart';
 import 'package:projeto_flutter_21805677/Models/report.dart';
 import 'package:projeto_flutter_21805677/repository/i_parks_repository.dart';
@@ -34,6 +40,23 @@ class CmDatabase extends IParksRepository{
               'lat TEXT NULL, '
               'lon TEXT NULL, '
               'type TEXT NULL '
+              ')',
+        );
+        await db.execute(
+          'CREATE TABLE gira('
+              'gira_id TEXT PRIMARY KEY, '
+              'num_docks TEXT NOT NULL, '
+              'num_bikes TEXT NOT NULL, '
+              'address TEXT NOT NULL, '
+              'last_update TEXT NOT NULL, '
+              ')',
+        );
+        await db.execute( //TODO: Type pode ser numero que depois equivale a um tipo
+          'CREATE TABLE gira_report('
+              'report_id TEXT PRIMARY KEY, '
+              'gira_id TEXT NOT NULL, '
+              'type INTEGER NULL, '
+              'obs TEXT NOT NULL, '
               ')',
         );
       },
@@ -113,22 +136,107 @@ class CmDatabase extends IParksRepository{
     return count;
   }
 
-  Future<List<Report>> getParkReports(String idParque) async {
+  Future<List<Report>> getParkReports(String parkId) async {
     if(_database == null){
       throw Exception('Forgot to initialize the database?');
     }
-    // WHERE id_parque='id_parque'
 
     List<Map<String, dynamic>> result = await _database!.rawQuery(
       'SELECT * FROM report WHERE park_id = ?',
-      [idParque],
+      [parkId],
     );
     return result
         .map((entry) => Report.fromDB(entry))
         .toList();
   }
 
+  @override
+  Future<List<Gira>> getGiras() async {
 
+    if (_database == null)
+      throw Exception('No database initialized');
+
+    List<Map<String, dynamic>> result = await _database!.rawQuery(
+      'SELECT * FROM gira',
+    );
+
+    return result
+        .map((entry) => Gira.fromDB(entry))
+        .toList();
+  }
+
+  @override
+  Future<Gira?> getGira(String giraId) async {
+
+    if (_database == null)
+      throw Exception('No database initialized');
+
+    List result = await _database!.rawQuery(
+      'SELECT * FROM gira WHERE gira_id = ?', [giraId],
+    );
+
+    if(result.isNotEmpty) {
+      return  Gira.fromDB(result.first);
+    } else{
+      throw Exception('Estação Gira com id: $giraId não encontrada');
+    }
+  }
+
+  @override
+  Future<void> insertGira(Gira gira) async{
+
+    if(_database == null)
+      throw Exception('No database initialized');
+
+    await _database!.insert('gira', gira.toDb());
+  }
+
+  @override
+  Future<void> deleteGira() async {
+    if(_database == null) {
+      throw Exception('No database initialized');
+    }
+
+    await _database!.rawDelete('DELETE FROM gira');
+  }
+
+  Future<void> insertGiraReport(GiraReport report) async {
+
+    if(_database == null){
+      throw Exception('No database was found');
+    }
+
+    int currentCount = await countReports();
+    report.reportId = currentCount.toString();
+    await _database!.insert('report', report.toDb());
+
+  }
+
+  Future<int> countGiraReports() async { //TODO: change counts
+    if (_database == null) {
+      throw Exception('No database initialized');
+    }
+
+    var result = await _database!.rawQuery('SELECT COUNT(*) FROM gira_report');
+    int count = Sqflite.firstIntValue(result) ?? 0;
+    return count;
+  }
+
+  Future<List<GiraReport>> getGiraReports(String giraId) async {
+    if(_database == null){
+      throw Exception('Forgot to initialize the database?');
+    }
+
+    List<Map<String, dynamic>> result = await _database!.rawQuery(
+      'SELECT * FROM report WHERE park_id = ?',
+      [giraId],
+    );
+    return result
+        .map((entry) => GiraReport.fromDB(entry))
+        .toList();
+  }
+
+  //Not implemented
   @override
   Future<List<ParkMarker>> getParkMarker() {
     throw UnimplementedError();
@@ -136,6 +244,18 @@ class CmDatabase extends IParksRepository{
 
   @override
   Future<List<ParkListing>> parkListing() {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<GiraListing>> giraListing() {
+    // TODO: implement giraListing
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<GiraMarker>> getGiraMarker(String giraId) {
+    // TODO: implement getGiraMarker
     throw UnimplementedError();
   }
 }

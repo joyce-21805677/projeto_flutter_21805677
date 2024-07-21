@@ -1,4 +1,7 @@
 import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:projeto_flutter_21805677/Models/gira.dart';
+import 'package:projeto_flutter_21805677/Models/gira_listing.dart';
+import 'package:projeto_flutter_21805677/Models/gira_marker.dart';
 import 'package:projeto_flutter_21805677/Models/park.dart';
 import 'package:projeto_flutter_21805677/Models/park_listing.dart';
 import 'package:projeto_flutter_21805677/Models/park_marker.dart';
@@ -15,6 +18,7 @@ class ParksRepository extends IParksRepository{
   ParksRepository({required this.local, required this.remote, required this.connectivityService});
 
 
+  @override
   Future<List<Park>> getParks() async {
 
     if(await connectivityService.isOnline()){
@@ -37,6 +41,7 @@ class ParksRepository extends IParksRepository{
 
   }
 
+  @override
   Future<Park?> getPark(String parkId) async {
 
     if(await connectivityService.isOnline()){
@@ -47,6 +52,7 @@ class ParksRepository extends IParksRepository{
 
   }
 
+  @override
   Future<List<ParkMarker>> getParkMarker() async {
 
     if(await connectivityService.isOnline()){
@@ -54,18 +60,6 @@ class ParksRepository extends IParksRepository{
     } else{
       throw Exception("Operation failure");
     }
-  }
-
-  @override
-  Future<void> deleteParks() {
-    // TODO: implement deleteParks
-    throw UnimplementedError();
-  }
-
-  @override
-  Future<void> insertPark(Park park) {
-    // TODO: implement insertPark
-    throw UnimplementedError();
   }
 
   @override
@@ -79,4 +73,79 @@ class ParksRepository extends IParksRepository{
   }
 
 
+  @override
+  Future<List<Gira>> getGiras() async {
+
+    if(await connectivityService.isOnline()){
+
+    var giras = await remote.getGiras();
+
+    local.deleteParks().then(
+    (_) {
+      for (var gira in giras){
+        local.insertGira(gira);
+      }
+    }
+    );
+
+    return giras;
+
+    }else {
+    return await local.getGiras();
+    }
+  }
+
+  @override
+  Future<Gira?> getGira(String giraId) async {
+
+    if(await connectivityService.isOnline()){
+    return await remote.getGira(giraId);
+    } else {
+    return await local.getGira(giraId);
+    }
+  }
+
+
+  @override
+  Future<List<GiraMarker>> getGiraMarker(String giraId) async {
+    if(await connectivityService.isOnline()){
+    return await remote.getGiraMarker(giraId);
+    } else{
+    throw Exception("Operation failure");
+    }
+  }
+
+  @override
+  Future<List<GiraListing>> giraListing() async{
+
+    if(await connectivityService.isOnline()){
+    return await remote.giraListing();
+    } else{
+    throw Exception("Required: Network access");
+    }
+  }
+
+
+//not to be implemented
+  @override
+  Future<void> deleteParks() {
+    // TODO: implement deleteParks
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> insertPark(Park park) {
+    // TODO: implement insertPark
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> insertGira(Gira gira) {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<void> deleteGira() {
+    throw UnimplementedError();
+  }
 }

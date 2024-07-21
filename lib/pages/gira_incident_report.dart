@@ -1,27 +1,31 @@
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:projeto_flutter_21805677/Models/gira_listing.dart';
+import 'package:projeto_flutter_21805677/Models/gira_report.dart';
 import 'package:projeto_flutter_21805677/Models/park_listing.dart';
 import 'package:projeto_flutter_21805677/Models/report.dart';
 import 'package:projeto_flutter_21805677/data/cm_database.dart';
 import 'package:projeto_flutter_21805677/repository/parks_repository.dart';
 import 'package:provider/provider.dart';
 
-class IncidentReport extends StatefulWidget {
-  const IncidentReport({super.key});
+class GiraIncidentReport extends StatefulWidget {
+  const GiraIncidentReport({super.key});
 
   @override
-  State<IncidentReport> createState() => _IncidentReportState();
+  State<GiraIncidentReport> createState() => _GiraIncidentReportState();
 }
 
-class _IncidentReportState extends State<IncidentReport> {
+class _GiraIncidentReportState extends State<GiraIncidentReport> {
 
-  ParkListing? selected;
-  var severityLevels = ['1', '2', '3', '4', '5'];
-  String? selectedSeverityLevel;
+  GiraListing? selected;
+  var possibleTypes = ['Bicicleta vandalizada', 'Doca não libertou bicicleta', 'Outra situação'];
+  String? selectedType;
   TextEditingController obsController = TextEditingController();
   final formKey = GlobalKey<FormState>();
 
-  String parkId = 'null';
-  String severity = 'null';
+  String giraId = 'null';
+  int type = 0;
+  String selectedTypeString = 'null';
   String obs = 'null';
 
 
@@ -34,7 +38,7 @@ class _IncidentReportState extends State<IncidentReport> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text( "Registar Incidente",
+        title: Text( "Registar Incidente Gira",
           style: TextStyle(
             fontSize: 20,
           ),
@@ -44,7 +48,7 @@ class _IncidentReportState extends State<IncidentReport> {
       body: Padding(
         padding: const EdgeInsets.all(16),
         child: FutureBuilder(
-          future: repository.parkListing(),
+          future: repository.giraListing(),
           builder: (_, snapshot) {
             if (snapshot.connectionState != ConnectionState.done) {
               return Center(child: CircularProgressIndicator());
@@ -59,15 +63,15 @@ class _IncidentReportState extends State<IncidentReport> {
     );
   }
 
-  Widget buildForm(CmDatabase database, List<ParkListing> parks) {
+  Widget buildForm(CmDatabase database, List<GiraListing> giras) {
     return Form(
       key: formKey,
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          buildParkList(parks),
+          buildGiraList(giras),
           SizedBox(height: 10),
-          buildSeverityDropdown(),
+          buildTypeDropdown(),
           SizedBox(height: 10),
           buildObsForm(),
           SizedBox(height: 10),
@@ -77,36 +81,36 @@ class _IncidentReportState extends State<IncidentReport> {
     );
   }
 
-  Widget buildParkList(List<ParkListing> parks) {
-    return DropdownButtonFormField<ParkListing>(
+  Widget buildGiraList(List<GiraListing> giras) {
+    return DropdownButtonFormField<GiraListing>(
       value: selected,
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: 'Local do incidente...',
       ),
-      onChanged: (ParkListing? value) {
+      onChanged: (GiraListing? value) {
         setState(() {
           selected = value;
-          parkId = value?.parkId ?? '';
+          giraId = value?.giraId ?? '';
         });
       },
-      items: parks.map((ParkListing item) {
+      items: giras.map((GiraListing item) {
         return DropdownMenuItem(
           value: item,
-          child: Text(item.name),
+          child: Text(item.giraId),
         );
       }).toList(),
     );
   }
 
-  Widget buildSeverityDropdown() {
+  Widget buildTypeDropdown() {
     return DropdownButtonFormField<String>(
-      value: selectedSeverityLevel,
+      value: selectedType,
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: 'Gravidade do incidente...',
       ),
-      items: severityLevels.map((String value) {
+      items: possibleTypes.map((String value) {
         return DropdownMenuItem<String>(
           value: value,
           child: Text(value),
@@ -114,8 +118,18 @@ class _IncidentReportState extends State<IncidentReport> {
       }).toList(),
       onChanged: (String? value) {
         setState(() {
-          selectedSeverityLevel = value;
-          severity = value ?? '';
+          selectedType = value;
+          switch(value){
+            case 'Bicicleta vandalizada':
+              type = 1;
+              break;
+            case 'Doca não libertou bicicleta':
+              type = 2;
+              break;
+            case 'Outra situação':
+              type = 3;
+              break;
+          }
         });
       },
     );
@@ -139,11 +153,11 @@ class _IncidentReportState extends State<IncidentReport> {
     return ElevatedButton(
       onPressed: ()  {
         obs = obsController.text.toString();
-        print(parkId);
-        print(severity);
+        print(giraId);
+        print(type);
         print(obsController.text);
 
-        if(severity == 'null' || parkId == 'null' || obs == 'null'){
+        if(giraId == 'null'|| obs == 'null' || type == 0){
 
           ScaffoldMessenger.of(context).showSnackBar((SnackBar(
             content: Text('Todos os campos são obrigatórios'),
@@ -151,10 +165,23 @@ class _IncidentReportState extends State<IncidentReport> {
 
         } else{
 
-          database.insertReport(Report(reportId: '', parkId: parkId, severity: int.parse(severity), dateInfo: DateTime.now().toString(), obs: obs));
+          switch(selectedType){
+            case 'Bicicleta vandalizada':
+              type = 1;
+              break;
+            case 'Doca não libertou bicicleta':
+              type = 2;
+              break;
+            case 'Outra situação':
+              type = 3;
+              break;
+
+          }
+
+          database.insertGiraReport(GiraReport(reportId: '', giraId: giraId, obs: obs, type: type));
 
           ScaffoldMessenger.of(context).showSnackBar((SnackBar(
-            content: Text('Incidente reportado!'),
+            content: Text('Incidente gira reportado!'),
           )));
         }
       },

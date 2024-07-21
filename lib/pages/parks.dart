@@ -76,7 +76,7 @@ class _ParksState extends State<Parks> {
         onTap: () => Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (context) => ParkDetailpage(
+            builder: (context) => ParkDetail(
               parkId: parks[index].parkId,
               source: _source!,
             ),

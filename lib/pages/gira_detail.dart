@@ -1,34 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:projeto_flutter_21805677/Models/park.dart';
-import 'package:projeto_flutter_21805677/Models/report.dart';
+import 'package:projeto_flutter_21805677/Models/gira.dart';
+import 'package:projeto_flutter_21805677/Models/gira_report.dart';
 import 'package:projeto_flutter_21805677/data/cm_database.dart';
 import 'package:projeto_flutter_21805677/repository/parks_repository.dart';
 import 'package:provider/provider.dart';
 
-class ParkDetail extends StatefulWidget {
-  const ParkDetail({super.key, required this.parkId, required this.source});
+class GiraDetail extends StatefulWidget {
+  const GiraDetail({super.key, required this.giraId, required this.source});
 
-  final String parkId;
+  final String giraId;
   final String source;
 
   @override
-  State<ParkDetail> createState() => _ParkDetailState();
+  State<GiraDetail> createState() => _GiraDetailState();
 }
 
-class _ParkDetailState extends State<ParkDetail> {
+class _GiraDetailState extends State<GiraDetail> {
 
-  Park? _park;
+  Gira? _gira;
 
   @override
   void initState() {
     super.initState();
 
     final repository = context.read<ParksRepository>();
-    final futurePark = repository.getPark(widget.parkId);
+    final futureGira = repository.getGira(widget.giraId);
 
-    futurePark.then((park) {
+    futureGira.then((gira) {
       setState(() {
-        _park = park as Park?;
+        _gira = gira;
       });
     });
   }
@@ -58,7 +58,7 @@ class _ParkDetailState extends State<ParkDetail> {
             buildFutureParkDetail(repository, database, context),
             SizedBox(height: 20),
             Text(
-              'Lista de Incidentes',
+              'Lista de Incidentes Gira',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
             SizedBox(height: 10),
@@ -69,29 +69,29 @@ class _ParkDetailState extends State<ParkDetail> {
     );
   }
 
-  Widget buildPark(Park park) {
+  Widget buildPark(Gira gira) {
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Image(
           width: 150,
           image: NetworkImage(
-            'https://img.acp.pt/ResourcesUser/ImagesAC/Atualidade/2023/Mes11/Estacionamento-/Parque-Pontinha.jpg',
+            'https://img.acp.pt/ResourcesUser/ImagesAC/Atualidade/2023/Mes11/Estacionamento-/Parque-Pontinha.jpg', //TODO: MUDAR IMAGEM
           ),
         ),
         SizedBox(height: 10),
-        Text(park.name, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
-        Text('Data de ultima atualização: ${park.ocupationDate}', style: TextStyle(fontSize: 16)),
-        Text('Ocupação: ${park.ocupation < 0 ? park.ocupation * -1 : park.ocupation }', style: TextStyle(fontSize: 16)),
-        Text('Lugares disponivéis: ${ park.ocupation < 0 ? park.maxCapacity + park.ocupation: park.maxCapacity - park.ocupation}', style: TextStyle(fontSize: 16)),
-        Text('Tipo de parque: ${park.type}', style: TextStyle(fontSize: 16)),
+        Text(gira.giraId, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+        Text('Morada: ${gira.address}', style: TextStyle(fontSize: 16)),
+        Text('Numero de docas: ${gira.numOfDocks}', style: TextStyle(fontSize: 16)),
+        Text('Número de bicicletas: ${gira.numOfBikes}', style: TextStyle(fontSize: 16)),
+        Text('Data de ultima atualização: ${gira.lastUpdate}', style: TextStyle(fontSize: 16)),
       ],
     );
   }
 
-  FutureBuilder<Park?> buildFutureParkDetail(ParksRepository repository, CmDatabase database, context) {
+  FutureBuilder<Gira?> buildFutureParkDetail(ParksRepository repository, CmDatabase database, context) {
     return FutureBuilder(
-      future: widget.source == 'network' ? repository.getPark(widget.parkId) : database.getPark(widget.parkId),
+      future: widget.source == 'network' ? repository.getGira(widget.giraId) : database.getGira(widget.giraId),
       builder: (_, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return Center(child: CircularProgressIndicator());
@@ -106,9 +106,9 @@ class _ParkDetailState extends State<ParkDetail> {
     );
   }
 
-  FutureBuilder<List<Report>> buildFutureReportList(CmDatabase database) {
+  FutureBuilder<List<GiraReport>> buildFutureReportList(CmDatabase database) {
     return FutureBuilder(
-      future: database.getParkReports(widget.parkId),
+      future: database.getGiraReports(widget.giraId),
       builder: (_, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return Center(child: CircularProgressIndicator());
@@ -121,7 +121,7 @@ class _ParkDetailState extends State<ParkDetail> {
     );
   }
 
-  Widget buildReportsList(List<Report> reports) {
+  Widget buildReportsList(List<GiraReport> reports) {
     return ListView.separated(
       shrinkWrap: true,
       physics: NeverScrollableScrollPhysics(),
@@ -130,8 +130,8 @@ class _ParkDetailState extends State<ParkDetail> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text('Gravidade: ${reports[index].severity}', style: TextStyle(fontSize: 18)),
-            Text('Reportado a ${reports[index].dateInfo}', style: TextStyle(fontSize: 12)),
+            Text('Estação: ${reports[index].giraId}', style: TextStyle(fontSize: 18)),
+            Text('Tipo de problema ${reports[index].type}', style: TextStyle(fontSize: 12)), //TODO: convert type to text MAYBE
             Text('Observações:\n${reports[index].obs}', style: TextStyle(fontSize: 14)
             ),
           ],
