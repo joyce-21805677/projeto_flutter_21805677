@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:projeto_flutter_21805677/Models/park.dart';
 import 'package:projeto_flutter_21805677/data/cm_database.dart';
-import 'package:projeto_flutter_21805677/pages/navigation.dart';
-import 'package:projeto_flutter_21805677/pages/park_detail_page.dart';
+import 'package:projeto_flutter_21805677/pages/park_detail.dart';
 import 'package:projeto_flutter_21805677/repository/parks_repository.dart';
 import 'package:provider/provider.dart';
 
@@ -16,7 +15,7 @@ class Parks extends StatefulWidget {
 class _ParksState extends State<Parks> {
 
   bool _loadList = true;
-  List<Park> _parks = [];
+  //List<Park> _parks = [];
 
   String? _source;
 
@@ -52,24 +51,21 @@ class _ParksState extends State<Parks> {
   }
 
   Widget buildFutureParkList(ParksRepository repository) {
-
     return FutureBuilder(
       future: repository.getParks(),
       builder: (_, snapshot) {
         if (snapshot.connectionState != ConnectionState.done) {
           return Center(child: CircularProgressIndicator());
         } else if (snapshot.hasError) {
-          return Center(child: Text("Error: ${snapshot.error}"));
+          return Center(child: Text("Erro: ${snapshot.error}"));
         } else {
-          List<Park> parks = (snapshot.data ?? []).cast<Park>();
-          return buildParkList(parks);
+          return buildParkList(snapshot.data ?? []);
         }
       },
     );
   }
 
   Widget buildParkList(List<Park> parks) {
-
     return ListView.separated(
       itemBuilder: (_, index) => ListTile(
         title: Text(parks[index].name),
@@ -91,19 +87,4 @@ class _ParksState extends State<Parks> {
       itemCount: parks.length,
     );
   }
-
-  Widget buildParkListBtn() {
-
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          ElevatedButton(
-              onPressed: () => context.read<NavigationViewModel>().selectedIndex = 0,
-              child: Text('Back to Dashboard'))
-        ],
-      ),
-    );
-  }
 }
-

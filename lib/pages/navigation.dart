@@ -23,8 +23,6 @@ class Navigation extends StatefulWidget {
 
 class _NavigationState extends State<Navigation> {
 
-
-
   @override
   Widget build(BuildContext context) {
     final viewModel = context.watch<NavigationViewModel>();

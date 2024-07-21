@@ -1,8 +1,10 @@
+import 'package:projeto_flutter_21805677/Models/park_listing.dart';
+import 'package:projeto_flutter_21805677/Models/park.dart';
+import 'package:projeto_flutter_21805677/Models/park_marker.dart';
+import 'package:projeto_flutter_21805677/Models/report.dart';
 import 'package:projeto_flutter_21805677/repository/i_parks_repository.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:path/path.dart';
-
-import '../Models/Park.dart';
 
 class CmDatabase extends IParksRepository{
   Database? _database;
@@ -15,7 +17,7 @@ class CmDatabase extends IParksRepository{
           'CREATE TABLE report('
               'report_id TEXT PRIMARY KEY, '
               'park_id TEXT NOT NULL, '
-              'seriousness INTEGER NULL, '
+              'severity INTEGER NULL, '
               'date_info TEXT NULL, '
               'obs TEXT NULL '
               ')',
@@ -82,9 +84,58 @@ class CmDatabase extends IParksRepository{
 
   @override
   Future<void> deleteParks() async {
-    if(_database == null)
+    if(_database == null) {
       throw Exception('No database initialized');
+    }
 
     await _database!.rawDelete('DELETE FROM park');
+  }
+
+  Future<void> insertReport(Report report) async {
+
+    if(_database == null){
+      throw Exception('No database was found');
+    }
+
+    int currentCount = await countReports();
+    report.reportId = currentCount.toString();
+    await _database!.insert('report', report.toDb());
+
+  }
+
+  Future<int> countReports() async { //TODO: change counts
+    if (_database == null) {
+      throw Exception('No database initialized');
+    }
+
+    var result = await _database!.rawQuery('SELECT COUNT(*) FROM report');
+    int count = Sqflite.firstIntValue(result) ?? 0;
+    return count;
+  }
+
+  Future<List<Report>> getParkReports(String idParque) async {
+    if(_database == null){
+      throw Exception('Forgot to initialize the database?');
+    }
+    // WHERE id_parque='id_parque'
+
+    List<Map<String, dynamic>> result = await _database!.rawQuery(
+      'SELECT * FROM report WHERE park_id = ?',
+      [idParque],
+    );
+    return result
+        .map((entry) => Report.fromDB(entry))
+        .toList();
+  }
+
+
+  @override
+  Future<List<ParkMarker>> getParkMarker() {
+    throw UnimplementedError();
+  }
+
+  @override
+  Future<List<ParkListing>> parkListing() {
+    throw UnimplementedError();
   }
 }

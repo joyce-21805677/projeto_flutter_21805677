@@ -1,13 +1,16 @@
-
-
-
 import 'dart:async';
 
 import 'package:flutter/material.dart';
+
+import 'package:projeto_flutter_21805677/Models/park_marker.dart';
+import 'package:projeto_flutter_21805677/pages/park_detail.dart';
+import 'package:projeto_flutter_21805677/repository/i_parks_repository.dart';
+
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
-import 'package:projeto_flutter_21805677/repository/parks_repository.dart';
 import 'package:provider/provider.dart';
+
+
 
 class Map extends StatefulWidget {
   const Map({super.key});
@@ -32,9 +35,9 @@ class _MapState extends State<Map> {
 
   @override
   void initState() {
-    // TODO: implement initState
     super.initState();
-    getLocationUpdates();
+    locationUpdates();
+    setMarkers();
   }
 
 
@@ -67,41 +70,79 @@ class _MapState extends State<Map> {
     );
   }
 
-  //*MAP THINGS*//
-  Future<void> getLocationUpdates() async {
-    bool serviceEnabled; // flag to know if we are allowed to ge the users permission
-    PermissionStatus permissionGranted;
+  Future<void> setMarkers() async {
+    final repository = context.read<IParksRepository>();
 
-    serviceEnabled = await _locationController.serviceEnabled();
-    if(serviceEnabled){
-      serviceEnabled = await _locationController.requestService();
+    try {
+      List<ParkMarker> markers = await repository.getParkMarker();
+      
+      Set<Marker> parkMarkers = markers.map((marker) {
+
+        return Marker(
+          markerId: MarkerId(marker.parkId),
+
+          position: LatLng(
+
+            double.parse(marker.lat),
+            double.parse(marker.lon),
+          ),
+
+          infoWindow: InfoWindow(
+            title: marker.name,
+            onTap: () {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                    builder: (context) => ParkDetailpage(
+                        parkId: marker.parkId,
+                        source: 'map',
+                    ),
+                ),
+              );
+            },
+          ),
+        );
+      }).toSet();
+
+      setState(() {
+        _markers = parkMarkers;
+      });
+
+    } catch (e) {
+      Exception ("Error on markers");
+    }
+  }
+
+  Future<void> locationUpdates() async {
+    bool locationService;
+    PermissionStatus permissionStatus;
+
+    locationService = await _locationController.serviceEnabled();
+
+    if(locationService){
+      locationService = await _locationController.requestService();
     } else {
       return;
     }
 
-    permissionGranted = await _locationController.hasPermission();
-    if(permissionGranted == PermissionStatus.denied){
-      // this lauches a prompt on the screen requesting the user perms
-      permissionGranted = await _locationController.requestPermission();
-      //if its not granted
-      if(permissionGranted != PermissionStatus.granted){
-        //we jsut return from the fucniton
-        return;
-      }
+    permissionStatus = await _locationController.hasPermission();
+
+    if(permissionStatus == PermissionStatus.denied){
+      permissionStatus = await _locationController.requestPermission();
+    } else if(permissionStatus != PermissionStatus.granted) {
+      return;
     }
 
-    _locationController.onLocationChanged
-        .listen((LocationData currentLocation) {
-      if(currentLocation.latitude != null &&
-          currentLocation.longitude != null){
+    _locationController.onLocationChanged.listen((LocationData location) {
+
+      if(location.latitude != null && location.longitude != null){
+
         setState(() {
-          _currentPosition = LatLng(currentLocation.latitude!, currentLocation.longitude!);
+          _currentPosition = LatLng(location.latitude!, location.longitude!);
+
           print(_currentPosition);
         });
-
       }
     });
-
   }
-
 }
