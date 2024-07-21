@@ -18,7 +18,7 @@
 - Apresentar incidentes vindos da BD (Implemantado)
 - Formulário regista na BD (Implemantado)
 - Geolocalização 
-- Funcionamento offline (Não testatdo)
+- Funcionamento offline (Implementado Excepto em incidentes)
 - Testes Unitários / Integração (Não Implementado)
 - Apresentação do google maps (GIRA) (Implemantado)
 - Markers com os parques GIRA (Implemantado)
