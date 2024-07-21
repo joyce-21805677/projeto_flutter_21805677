@@ -1,4 +1,3 @@
-
 class GiraListing {
 
   String giraId;

@@ -1,5 +1,3 @@
-import 'dart:ffi';
-
 class Gira {
   String giraId;
   int numOfDocks;

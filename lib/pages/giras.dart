@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:projeto_flutter_21805677/Models/gira.dart';
 import 'package:projeto_flutter_21805677/data/cm_database.dart';
 import 'package:projeto_flutter_21805677/pages/gira_detail.dart';
-import 'package:projeto_flutter_21805677/pages/park_detail.dart';
 import 'package:projeto_flutter_21805677/repository/parks_repository.dart';
 import 'package:provider/provider.dart';
 

@@ -1,17 +1,13 @@
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:projeto_flutter_21805677/Models/gira_marker.dart';
 import 'package:projeto_flutter_21805677/Models/park_marker.dart';
 import 'package:projeto_flutter_21805677/pages/gira_detail.dart';
 import 'package:projeto_flutter_21805677/pages/park_detail.dart';
-import 'package:projeto_flutter_21805677/repository/i_parks_repository.dart';
 import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:location/location.dart';
 import 'package:projeto_flutter_21805677/repository/parks_repository.dart';
 import 'package:provider/provider.dart';
-
-import '../Models/gira.dart';
 
 class Map extends StatefulWidget {
   const Map({super.key});

@@ -1,4 +1,3 @@
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:projeto_flutter_21805677/Models/gira.dart';
 import 'package:projeto_flutter_21805677/Models/gira_listing.dart';
 import 'package:projeto_flutter_21805677/Models/gira_marker.dart';

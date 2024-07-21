@@ -1,11 +1,9 @@
-
 import 'package:flutter/material.dart';
 import 'package:projeto_flutter_21805677/Models/gira_report.dart';
 import 'package:projeto_flutter_21805677/Models/report.dart';
 import 'package:projeto_flutter_21805677/data/cm_database.dart';
 import 'package:provider/provider.dart';
-
-import '../Models/combined_reports.dart';
+import 'package:projeto_flutter_21805677/Models/combined_reports.dart';
 
 class Dashboard extends StatefulWidget {
   const Dashboard({super.key});

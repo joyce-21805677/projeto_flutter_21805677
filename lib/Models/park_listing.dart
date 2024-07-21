@@ -1,4 +1,3 @@
-
 class ParkListing {
 
   String parkId;
